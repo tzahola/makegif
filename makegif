@@ -11,7 +11,7 @@ inputs=()
 while [ "$#" != 0 ]; do
     key="$1"; shift
     case "$key" in
-        "--help") shift
+        "--help")
             echo "Usage: makegif [--fps fps] [--width width] [--height height] [--colors max_colors] source_file ..."
             exit
             ;;
