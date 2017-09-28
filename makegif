@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+IFS=$'\n\t'
+
+width="-1"
+height="-1"
+colors="256"
+inputs=()
+
+while [ "$#" != 0 ]; do
+    key="$1"; shift
+    case "$key" in
+        "--fps")
+            fps="$1"; shift
+            ;;
+        "--width")
+            width="$1"; shift
+            ;;
+        "--height")
+            height="$1"; shift
+            ;;
+        "--colors")
+            colors="$1"; shift
+            ;;
+        *)
+            inputs+=("$key");
+            ;;
+    esac
+done
+
+for input in "${inputs[@]}"; do
+    tmp_dir="$(mktemp -d)"
+    palette="$tmp_dir/palette.png"
+    ffmpeg -i "$input" -vf "fps=$fps,scale=$width:$height:flags=lanczos,palettegen=max_colors=$colors" "$palette"
+    ffmpeg -i "$input" -i "$palette" -filter_complex "fps=$fps,scale=$width:$height:flags=lanczos[x];[x][1:v]paletteuse" "$input.gif"
+    rm -rf "$tmp_dir"
+done
+
